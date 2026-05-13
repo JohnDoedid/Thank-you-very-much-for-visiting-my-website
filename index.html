@@ -58,44 +58,10 @@
     <p>This is a cute cat: </p>
     <img height=300vh width=225vw src="https://images.unsplash.com/photo-1529778873920-4da4926a72c2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGNhdHxlbnwwfHwwfHx8MA%3D%3D">
     <p><b><br><br>And again, I thank you very much for visiting my site.</b><br>Here is a live number of how many people have currently visited:</p>
-<span id="visits" style="font-size: 24px; font-weight: bold; color: #333;">
-  Initializing...
-</span>
-
-<script>
-async function getVisits() {
-  const visitsEl = document.getElementById('visits');
-  
-  // Update 'main' if your counter has a different name in the dashboard
-  const url = 'https://api.counterapi.dev/v2/namespaces/goldenhat-prods/counters/main/up';
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Server Response:", errorText);
-      throw new Error(`HTTP ${response.status}: Ensure the counter 'main' exists in 'goldenhat-prods'`);
-    }
-
-    const result = await response.json();
-
-    // v2 returns the count inside the 'data' object
-    if (result.data && typeof result.data.count !== 'undefined') {
-      visitsEl.innerText = result.data.count.toLocaleString();
-    } else {
-      throw new Error("JSON structure mismatch");
-    }
-
-  } catch (error) {
-    console.error("Counter Error:", error);
-    visitsEl.innerText = "Offline";
-  }
-}
-
-getVisits();
-</script>
-<p></p>
+<a href="https://www.freecounterstat.com" title="free website counter"><img src="https://counter1.optistats.ovh/private/freecounterstat.php?c=upqag95f9gek9ytmx8qsa2na8d94hapn" border="0" title="free website counter" alt="free website counter"></a>
+    <p>Click under here to view the full stats, and <b style='color:#f00;'>proudly show where you are exactly at in the world (please no)!</b></p>
+    <div id="sfcupqag95f9gek9ytmx8qsa2na8d94hapn"></div><script type="text/javascript" src="https://counter1.optistats.ovh/private/counter.js?c=upqag95f9gek9ytmx8qsa2na8d94hapn&down=async" async></script><noscript><a href="https://www.freecounterstat.com" title="free website counter"><img src="https://counter1.optistats.ovh/private/freecounterstat.php?c=upqag95f9gek9ytmx8qsa2na8d94hapn" border="0" title="free website counter" alt="free website counter"></a></noscript>
+    <p></p>
 <header><h2>Thank you for visiting!</h2></header>
 </body>
 
