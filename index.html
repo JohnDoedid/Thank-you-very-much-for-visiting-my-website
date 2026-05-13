@@ -58,38 +58,38 @@
     <p>This is a cute cat: </p>
     <img height=300vh width=225vw src="https://images.unsplash.com/photo-1529778873920-4da4926a72c2?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGNhdHxlbnwwfHwwfHx8MA%3D%3D">
     <p><b><br><br>And again, I thank you very much for visiting my site.</b><br>Here is a live number of how many people have currently visited:</p>
-    <span id="visits" style="font-size: 24px; font-weight: bold; color: #333;">
-  Loading...
+<span id="visits" style="font-size: 24px; font-weight: bold; color: #333;">
+  Initializing...
 </span>
 
 <script>
 async function getVisits() {
   const visitsEl = document.getElementById('visits');
   
+  // Update 'main' if your counter has a different name in the dashboard
+  const url = 'https://api.counterapi.dev/v2/namespaces/goldenhat-prods/counters/main/up';
+
   try {
-    const response = await fetch(
-      'https://api.counterapi.dev/v1/goldenhat_prods/main/increment'
-    );
+    const response = await fetch(url);
 
-    // 1. Check if the response is actually okay
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Server Response:", errorText);
+      throw new Error(`HTTP ${response.status}: Ensure the counter 'main' exists in 'goldenhat-prods'`);
     }
 
-    // 2. Check if the response is actually JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await response.text();
-      console.error("Received non-JSON response:", text);
-      throw new TypeError("Oops, we didn't get JSON back from the server!");
-    }
+    const result = await response.json();
 
-    const data = await response.json();
-    visitsEl.innerText = data.count.toLocaleString();
+    // v2 returns the count inside the 'data' object
+    if (result.data && typeof result.data.count !== 'undefined') {
+      visitsEl.innerText = result.data.count.toLocaleString();
+    } else {
+      throw new Error("JSON structure mismatch");
+    }
 
   } catch (error) {
-    visitsEl.innerText = "Counter Offline";
-    console.error("Counter error details:", error);
+    console.error("Counter Error:", error);
+    visitsEl.innerText = "Offline";
   }
 }
 
