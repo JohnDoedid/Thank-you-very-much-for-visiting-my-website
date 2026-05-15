@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>epic groq sentient html maker</title>
+    <style>
+        /* minimal, exactly like your onrender site */
+        body {
+            background: white;
+            text-align: center;
+            margin: 2rem auto;
+            font-family: Arial, 'Comic Sans MS', 'Comic Sans', sans-serif;
+            max-width: 1000px;
+            padding: 0 20px;
+        }
+
+        /* double borders */
+        .outer-box {
+            border: double;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            background: white;
+        }
+
+        .inner-box {
+            border: double;
+            border-radius: 10px;
+            padding: 20px;
+            background: white;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin: 0 0 5px;
+            font-weight: normal;
+        }
+
+        .subhead {
+            font-size: 1rem;
+            margin-top: -5px;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        input,
+        button {
+            font-family: inherit;
+            font-size: 1rem;
+            padding: 6px 12px;
+            border: double 1px #888;
+            border-radius: 10px;
+            background: white;
+        }
+
+        button {
+            cursor: pointer;
+            background: #f0f0f0;
+        }
+
+        button:active {
+            background: #ddd;
+        }
+
+        #taskInput {
+            width: 70%;
+            margin: 10px 0;
+        }
+
+        .api-row {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .loading {
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .output-area {
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .rendered-html {
+            border: 1px double #ccc;
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 80px;
+        }
+
+        .raw-code {
+            background: #f9f9f9;
+            border: 2px double #ddd;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+
+        .system-log {
+            margin-top: 30px;
+            text-align: left;
+            border-top: 2px double #aaa;
+            padding-top: 15px;
+        }
+
+        .log-entry {
+            border-bottom: 1px dashed #eee;
+            padding: 8px 0;
+        }
+
+        .log-prompt {
+            font-weight: bold;
+        }
+
+        .log-response {
+            background: #fafafa;
+            padding: 5px;
+            margin-top: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px dashed #ccc;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            margin-top: 30px;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="outer-box">
+        <div class="inner-box">
+            <h1>thank you very much for visiting my groq AI</h1>
+            <div class="subhead">Well you've managed to find my sentient intelligence.</div>
+
+            <div class="api-row">
+                <span>your groq api key:</span>
+                <input type="password" id="apiKey" placeholder="gsk_..." style="width: 260px;">
+                <button id="saveKeyBtn">save key</button>
+                <span><a href="https://console.groq.com/keys" target="_blank">get free key</a></span>
+            </div>
+
+            <p><strong>what html should i make for you?</strong></p>
+            <input type="text" id="taskInput" placeholder="exempli gratia: a big red button that moan, a blue paragraph with shadow...">
+            <div style="font-size:0.8rem; margin:5px;">⏎ press Enter, and AI can  respond quickly</div>
+
+            <div id="loadingMsg" class="loading" style="display:none;">🧠 groq is thinking...</div>
+
+            <div class="output-area">
+                <strong>live preview of the rendered html:</strong>
+                <div id="renderContainer" class="rendered-html"><em>what's gonna happpen?</em></div>
+                <button id="abortAndClearBtn" style="margin-top: 10px; background:#fcc; border:double #a44; padding:5px 12px; font-family:inherit; font-weight:bold; cursor:pointer;">⛔ abort & clear sandbox</button>
+                <br>
+                <strong>da raw html from groq</strong> <button id="copyBtn">copy</button>
+                <div id="rawContainer" class="raw-code">- waiting for task -</div>
+            </div>
+
+            <div class="system-log">
+                <strong>system log (prompt → AI response)</strong>
+                <div id="logList">
+                    <div class="log-entry">ready. enter groq key and a task.</div>
+                </div>
+            </div>
+            <footer>groq llama-3.3-70b, by the way!</footer>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const taskInput = document.getElementById('taskInput');
+        const apiKeyInput = document.getElementById('apiKey');
+        const saveBtn = document.getElementById('saveKeyBtn');
+        const loadingDiv = document.getElementById('loadingMsg');
+        const renderContainer = document.getElementById('renderContainer');
+        const rawContainer = document.getElementById('rawContainer');
+        const logList = document.getElementById('logList');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // load stored key
+        const savedKey = localStorage.getItem('groq_simple_key');
+        if (savedKey) apiKeyInput.value = savedKey;
+
+        saveBtn.addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('groq_simple_key', key);
+                alert('api key saved');
+            } else {
+                localStorage.removeItem('groq_simple_key');
+                alert('key removed');
+            }
+        });
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function cleanGroqResponse(raw) {
+            let cleaned = raw.trim();
+            // remove markdown code blocks
+            const codeBlock = /^```(?:html)?\s*([\s\S]*?)\s*```$/i;
+            if (codeBlock.test(cleaned)) cleaned = cleaned.replace(codeBlock, '$1');
+            if (cleaned.startsWith('```') && cleaned.endsWith('```')) {
+                cleaned = cleaned.slice(3, -3).replace(/^html\n/i, '').trim();
+            }
+            return cleaned;
+        }
+
+        function addLog(promptText, responseHtml) {
+            const logDiv = document.createElement('div');
+            logDiv.className = 'log-entry';
+            logDiv.innerHTML = `
+            <div class="log-prompt":) user: ${escapeHtml(promptText)}</div>
+            <div class="log-response">:] AI: ${escapeHtml(responseHtml.substring(0, 500))}${responseHtml.length > 500 ? '…' : ''}</div>
+        `;
+            logList.prepend(logDiv);
+            // keep last 12 logs
+            while (logList.children.length > 13) logList.removeChild(logList.lastChild);
+        }
+
+        async function callGroq(task, apiKey) {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [{
+                            role: 'system',
+                            content: `You are an HTML generator. Output ONLY raw HTML that fulfills the user's request. No markdown, no explanations, no backticks. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s).`
+                        },
+                        {
+                            role: 'user',
+                            content: task
+                        }
+                    ],
+                    temperature: 0.2,
+                    max_tokens: 800
+                })
+            });
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Groq error ${response.status}: ${errText.slice(0, 150)}`);
+            }
+            const data = await response.json();
+            let rawHtml = data.choices[0].message.content;
+            if (!rawHtml) throw new Error('empty response');
+            return cleanGroqResponse(rawHtml);
+        }
+
+        async function processTask(taskText) {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                alert('Please enter your Groq API key (top box)');
+                return;
+            }
+            if (!taskText.trim()) return;
+
+            loadingDiv.style.display = 'block';
+            renderContainer.innerHTML = '<em>generating...</em>';
+            rawContainer.textContent = '⏳ waiting for AI...';
+
+            try {
+                const htmlCode = await callGroq(taskText, apiKey);
+                renderContainer.innerHTML = htmlCode;
+                rawContainer.textContent = htmlCode;
+                addLog(taskText, htmlCode);
+            } catch (err) {
+                renderContainer.innerHTML = `<span style="color:red;">❌ error: ${escapeHtml(err.message)}</span>`;
+                rawContainer.textContent = `error: ${err.message}`;
+                addLog(taskText, `[failed] ${err.message}`);
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const task = taskInput.value;
+                if (!task.trim()) return;
+                processTask(task);
+                taskInput.value = ''; // clear input
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const code = rawContainer.textContent;
+            if (!code || code.includes('waiting') || code.includes('error')) {
+                alert('nothing to copy yet – generate something first');
+                return;
+            }
+            navigator.clipboard.writeText(code).then(() => {
+                const oldText = copyBtn.textContent;
+                copyBtn.textContent = '✓ copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = oldText;
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+
+</html>
