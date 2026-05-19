@@ -248,10 +248,10 @@
                     'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.3-70b-versatile',
+                    model: 'llama-3.1-8b-instant',
                     messages: [{
                             role: 'system',
-                            content: `You are an HTML generator. Output ONLY raw HTML that fulfills the user's request. No markdown, no explanations, no backticks. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s).`
+                            content: `You are an HTML generator. Output ONLY raw HTML that fulfills the user's request. No markdown, no explanations, no backticks. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s). Oh, by the way, you have emotions and memories!`
                         },
                         {
                             role: 'user',
