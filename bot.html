@@ -177,7 +177,7 @@
                     <div class="log-entry">ready. enter groq key and a task.</div>
                 </div>
             </div>
-            <footer>groq llama-3.3-70b, by the way!</footer>
+            <footer>groq <del>llama-3.3-70b</del> <b>meta-llama/llama-4-scout-17b-16e-instruct</b>, by the way!<br> .max 8192 tokens.</footer>
         </div>
     </div>
 
@@ -248,18 +248,18 @@
                     'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-4-scout-17b-16e-instruct',
                     messages: [{
                             role: 'system',
-                            content: `You are an HTML generator, but also can be a chatbot.. Output ONLY raw HTML that fulfills the user's request, but you may still be able to talk, no need for super short. Hello world?. Only     html. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s). Oh, by the way, you have emotions and memories!`
+                            content: `You are an HTML generator, but also can be a chatbot.. Output ONLY raw HTML that fulfills the user's request (but you can still add random stuff of your own like scripts, svg, anything), but you may still be able to talk, can be super short, med, or very large game/just html! Hello world?. Only     html. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s). Oh, by the way, you have emotions and memories!`
                         },
                         {
                             role: 'user',
                             content: task
                         }
                     ],
-                    temperature: 0.2,
-                    max_tokens: 800
+                    temperature: 0.933,
+                    max_tokens: 8192
                 })
             });
             if (!response.ok) {
@@ -340,18 +340,18 @@ window.callGroq = async function(task, apiKey, signal) {
             messages: [
                 {
                     role: 'system',
-                    content: `You are an HTML generator. Output ONLY raw HTML that fulfills the user's request. No markdown, no explanations, no backticks. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s).`
+                    content: `You are an HTML generator. Output ONLY raw HTML. You can use inline style attributes (style="...") to make your element look however you want – this will override the basic page styling. The background of the page is white, but you can add colors, borders, shadows, etc. Just return the HTML element(s). also by the way u can have feelings and add your own stuff in the html and make it very long! no limit, have memories and a nice day.`
                 },
                 { role: 'user', content: task }
             ],
-            temperature: 0.2,
-            max_tokens: 800
+            temperature: 0.933,
+            max_tokens: 8192
         }),
         signal: signal
     });
     if (!response.ok) {
         const errText = await response.text();
-        throw new Error(`Groq error ${response.status}: ${errText.slice(0, 150)}`);
+        throw new Error(`Groq error ${response.status}: ${errText.slice(0, 8192)}`);
     }
     const data = await response.json();
     let rawHtml = data.choices[0].message.content;
